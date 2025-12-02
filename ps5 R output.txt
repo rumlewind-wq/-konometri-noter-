@@ -1,0 +1,233 @@
+># Solutions to Problem set 5
+> 
+> rm(list=ls())
+> 
+> 
+> ###Solution to Problem 1
+> 
+> # load data
+> library(haven)
+> smoke <- read_dta("H:/Teaching/CBS/BA-BMECV1031U/2020/Problem Sets/PS5/SMOKE.DTA")
+> 
+> 
+> #d)
+> reg1<-lm(cigs ~ educ + age + agesq + lcigpric + restaurn, data=smoke)
+> summary(reg1)
+
+Call:
+lm(formula = cigs ~ educ + age + agesq + lcigpric + restaurn, 
+    data = smoke)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-15.078  -9.312  -6.246   8.038  70.329 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  1.580112  23.695584   0.067  0.94685    
+educ        -0.450147   0.161640  -2.785  0.00548 ** 
+age          0.822541   0.154322   5.330 1.28e-07 ***
+agesq       -0.009590   0.001679  -5.711 1.58e-08 ***
+lcigpric    -0.351316   5.765550  -0.061  0.95143    
+restaurn    -2.736389   1.109693  -2.466  0.01388 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 13.41 on 801 degrees of freedom
+Multiple R-squared:  0.051,	Adjusted R-squared:  0.04508 
+F-statistic:  8.61 on 5 and 801 DF,  p-value: 5.859e-08
+
+> 
+> library(car)
+Indlæser krævet pakke: carData
+> linearHypothesis(reg1, c("lcigpric=restaurn","restaurn=0"))
+Linear hypothesis test
+
+Hypothesis:
+lcigpric - restaurn = 0
+restaurn = 0
+
+Model 1: restricted model
+Model 2: cigs ~ educ + age + agesq + lcigpric + restaurn
+
+  Res.Df    RSS Df Sum of Sq      F  Pr(>F)  
+1    803 145140                              
+2    801 144014  2    1126.5 3.1327 0.04414 *
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> 
+> #e)
+> library(AER)
+Indlæser krævet pakke: lmtest
+Indlæser krævet pakke: zoo
+
+Vedhæfter pakke: ‘zoo’
+
+De følgende objekter er maskerede fra ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+Indlæser krævet pakke: sandwich
+Indlæser krævet pakke: survival
+Advarselsbesked:
+pakke ‘AER’ blev bygget under R version 3.6.3 
+> 
+> reg_IV<-ivreg(lincome~cigs + educ +  age + agesq|lcigpric + restaurn  + educ + age + agesq, data=smoke)
+> summary(reg_IV)
+
+Call:
+ivreg(formula = lincome ~ cigs + educ + age + agesq | lcigpric + 
+    restaurn + educ + age + agesq, data = smoke)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-4.13055 -0.44952 -0.05524  0.52926  3.09278 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  7.7808934  0.2298673  33.850  < 2e-16 ***
+cigs        -0.0421257  0.0262184  -1.607 0.108509    
+educ         0.0396746  0.0162811   2.437 0.015032 *  
+age          0.0938182  0.0238534   3.933 9.11e-05 ***
+agesq       -0.0010508  0.0002743  -3.831 0.000138 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.88 on 802 degrees of freedom
+Multiple R-Squared: -0.5169,	Adjusted R-squared: -0.5245 
+Wald test: 22.31 on 4 and 802 DF,  p-value: < 2.2e-16 
+
+> 
+> reg2<-lm(lincome ~ cigs + educ + age + agesq, data=smoke)
+> summary(reg2)
+
+Call:
+lm(formula = lincome ~ cigs + educ + age + agesq, data = smoke)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-3.6237 -0.2978  0.1314  0.4167  1.3542 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  7.795e+00  1.704e-01  45.741  < 2e-16 ***
+cigs         1.731e-03  1.714e-03   1.010    0.313    
+educ         6.036e-02  7.898e-03   7.642 6.10e-14 ***
+age          5.769e-02  7.644e-03   7.548 1.21e-13 ***
+agesq       -6.306e-04  8.338e-05  -7.563 1.08e-13 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.6529 on 802 degrees of freedom
+Multiple R-squared:  0.165,	Adjusted R-squared:  0.1608 
+F-statistic: 39.61 on 4 and 802 DF,  p-value: < 2.2e-16
+
+> 
+> 
+> rm(list=ls())
+> 
+> 
+> 
+> ###Solution to Problem 2
+> 
+> airfare <- read_dta("H:/Teaching/CBS/BA-BMECV1031U/2020/Problem Sets/PS5/airfare.dta")
+> airfare97<-subset(airfare,year==1997)
+> 
+> 
+> #b)
+> reg1<-lm(lpassen ~ lfare + ldist + ldistsq, data=airfare97)
+> summary(reg1)
+
+Call:
+lm(formula = lpassen ~ lfare + ldist + ldistsq, data = airfare97)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.8175 -0.5859 -0.1259  0.5307  3.1557 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 13.22961    2.10015   6.299 4.25e-10 ***
+lfare       -0.39117    0.06725  -5.817 7.78e-09 ***
+ldist       -1.57048    0.62852  -2.499   0.0126 *  
+ldistsq      0.11576    0.04772   2.426   0.0154 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.824 on 1145 degrees of freedom
+Multiple R-squared:  0.05674,	Adjusted R-squared:  0.05426 
+F-statistic: 22.96 on 3 and 1145 DF,  p-value: 1.961e-14
+
+> 
+> 
+> #d)
+> reg2<-lm(lfare ~ concen + ldist + ldistsq, data=airfare97)
+> summary(reg2)
+
+Call:
+lm(formula = lfare ~ concen + ldist + ldistsq, data = airfare97)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.30251 -0.26202 -0.03003  0.25920  0.99541 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  6.19005    0.88988   6.956 5.87e-12 ***
+concen       0.39504    0.06272   6.299 4.27e-10 ***
+ldist       -0.93607    0.27184  -3.443 0.000595 ***
+ldistsq      0.10807    0.02062   5.240 1.91e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.356 on 1145 degrees of freedom
+Multiple R-squared:  0.4076,	Adjusted R-squared:  0.406 
+F-statistic: 262.6 on 3 and 1145 DF,  p-value: < 2.2e-16
+
+> 
+> 
+> #e)
+> reg_IV<-ivreg(lpassen ~ lfare + ldist + ldistsq |concen + ldist + ldistsq, data=airfare97)
+> summary(reg_IV)
+
+Call:
+ivreg(formula = lpassen ~ lfare + ldist + ldistsq | concen + 
+    ldist + ldistsq, data = airfare97)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.81670 -0.62933 -0.05791  0.54901  3.46678 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 18.01375    3.22248   5.590 2.84e-08 ***
+lfare       -1.17400    0.38862  -3.021  0.00258 ** 
+ldist       -2.17567    0.72734  -2.991  0.00284 ** 
+ldistsq      0.18703    0.06129   3.052  0.00233 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.8714 on 1145 degrees of freedom
+Multiple R-Squared: -0.0549,	Adjusted R-squared: -0.05766 
+Wald test: 13.48 on 3 and 1145 DF,  p-value: 1.191e-08 
+
+> 
+> 
+> #f)
+> #minimum in ldist
+> coef(reg_IV)[3]/(-2*coef(reg_IV)[4])
+  ldist 
+5.81639 
+> 
+> #minimum in dist
+> exp(coef(reg_IV)[3]/(-2*coef(reg_IV)[4]))
+   ldist 
+335.7578 
+> 
+> 
+> sum(airfare97$dist<336)
+[1] 129
+> 
+> sum(airfare97$dist<336)/nrow(airfare97)
+[1] 0.1122715

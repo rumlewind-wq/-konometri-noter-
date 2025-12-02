@@ -1,0 +1,439 @@
+> # Problem Set 6
+> 
+> ###Solution to Problem 2
+> 
+> rm(list=ls())
+> library(haven)
+> Data <- read_dta("H:/Teaching/CBS/BA-BMECV1031U/2024/Problem Sets/PS6/401ksubs.dta")
+> 
+> #a)
+> table1 <- list(count=table(Data$e401k),percent=round(as.numeric(table(Data$e401k)/length(Data$e401k)),3))
+> as.data.frame(table1)
+  count.Var1 count.Freq percent
+1          0       5638   0.608
+2          1       3637   0.392
+> 
+> 
+> #b)
+> reg1<-lm(e401k ~ inc + incsq + age + agesq + male, data=Data)
+> summary(reg1)
+
+Call:
+lm(formula = e401k ~ inc + incsq + age + agesq + male, data = Data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.6970 -0.3719 -0.2149  0.4870  0.9155 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -5.063e-01  8.110e-02  -6.243 4.48e-10 ***
+inc          1.245e-02  5.929e-04  20.993  < 2e-16 ***
+incsq       -6.165e-05  4.732e-06 -13.028  < 2e-16 ***
+age          2.651e-02  3.922e-03   6.758 1.49e-11 ***
+agesq       -3.053e-04  4.501e-05  -6.782 1.26e-11 ***
+male        -3.533e-03  1.208e-02  -0.292     0.77    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.4648 on 9269 degrees of freedom
+Multiple R-squared:  0.09428,	Adjusted R-squared:  0.09379 
+F-statistic:   193 on 5 and 9269 DF,  p-value: < 2.2e-16
+
+> 
+> #with heteroskedasticity robust statistics
+> library(lmtest)
+Indlæser krævet pakke: zoo
+
+Vedhæfter pakke: ‘zoo’
+
+De følgende objekter er maskerede fra ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+> library(car)
+Indlæser krævet pakke: carData
+> 
+> coeftest(reg1, vcov=hccm(reg1, type="hc0"))
+
+t test of coefficients:
+
+               Estimate  Std. Error  t value  Pr(>|t|)    
+(Intercept) -5.0629e-01  7.8529e-02  -6.4472 1.196e-10 ***
+inc          1.2446e-02  6.0011e-04  20.7404 < 2.2e-16 ***
+incsq       -6.1649e-05  5.0025e-06 -12.3235 < 2.2e-16 ***
+age          2.6506e-02  3.8222e-03   6.9347 4.342e-12 ***
+agesq       -3.0527e-04  4.3739e-05  -6.9794 3.169e-12 ***
+male        -3.5328e-03  1.2049e-02  -0.2932    0.7694    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> #d)
+> Data$fit<-reg1$fitted.values
+> sum(Data$fit>1)
+[1] 0
+> sum(Data$fit<0)
+[1] 0
+> summary(Data$fit)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+0.02992 0.27038 0.37964 0.39213 0.50870 0.69719 
+> 
+> #e)
+> Data$te401k<-as.numeric(Data$fit>=0.5)
+> as.data.frame(list(count=table(Data$te401k),percent=round(as.numeric(table(Data$te401k)/length(Data$te401k)),3)))
+  count.Var1 count.Freq percent
+1          0       6815   0.735
+2          1       2460   0.265
+> 
+> #f)
+> #predicted y among those with e401k=1
+> as.data.frame(list(count=table(subset(Data$te401k,Data$e401k==1)),
++                    percent=round(as.numeric(table(subset(Data$te401k,Data$e401k==1))/length(subset(Data$te401k,Data$e401k==1))),3)))
+  count.Var1 count.Freq percent
+1          0       2208   0.607
+2          1       1429   0.393
+> 
+> #predicted y among those with e401k=0
+> as.data.frame(list(count=table(subset(Data$te401k,Data$e401k==0)),
++                    percent=round(as.numeric(table(subset(Data$te401k,Data$e401k==0))/length(subset(Data$te401k,Data$e401k==0))),3)))
+  count.Var1 count.Freq percent
+1          0       4607   0.817
+2          1       1031   0.183
+> 
+> #g)
+> as.data.frame(table(Data$e401k,Data$te401k,dnn = list("e401k","te401k")))
+  e401k te401k Freq
+1     0      0 4607
+2     1      0 2208
+3     0      1 1031
+4     1      1 1429
+> 
+> (4607+1429)/nrow(Data)
+[1] 0.6507817
+> 
+> rm(list=ls())
+> 
+> 
+> 
+> ###Solution to Problem 4
+> 
+> Data <- read_dta("H:/Teaching/CBS/BA-BMECV1031U/2024/Problem Sets/PS6/GROGGER.dta")
+> 
+> #a)
+> Data$arr86<-as.numeric(Data$narr86>0)
+> 
+> reg1<-lm(arr86 ~ pcnv + avgsen + tottime + ptime86 + inc86 + black + hispan + born60, data=Data)
+> summary(reg1)
+
+Call:
+lm(formula = arr86 ~ pcnv + avgsen + tottime + ptime86 + inc86 + 
+    black + hispan + born60, data = Data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.5665 -0.3152 -0.1942  0.5148  1.1544 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  0.360983   0.016093  22.432  < 2e-16 ***
+pcnv        -0.154380   0.020934  -7.375 2.18e-13 ***
+avgsen       0.003502   0.006342   0.552    0.581    
+tottime     -0.002061   0.004888  -0.422    0.673    
+ptime86     -0.021595   0.004468  -4.833 1.42e-06 ***
+inc86       -0.001225   0.000127  -9.648  < 2e-16 ***
+black        0.161718   0.023504   6.880 7.38e-12 ***
+hispan       0.089259   0.020559   4.342 1.47e-05 ***
+born60       0.002870   0.017199   0.167    0.867    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.4294 on 2716 degrees of freedom
+Multiple R-squared:  0.08239,	Adjusted R-squared:  0.07969 
+F-statistic: 30.48 on 8 and 2716 DF,  p-value: < 2.2e-16
+
+> 
+> 
+> coeftest(reg1, vcov=hccm(reg1, type="hc0"))  #robust standard errors
+
+t test of coefficients:
+
+               Estimate  Std. Error  t value  Pr(>|t|)    
+(Intercept)  0.36098314  0.01668044  21.6411 < 2.2e-16 ***
+pcnv        -0.15438020  0.01893269  -8.1542 5.311e-16 ***
+avgsen       0.00350240  0.00587790   0.5959    0.5513    
+tottime     -0.00206130  0.00421859  -0.4886    0.6251    
+ptime86     -0.02159526  0.00274863  -7.8567 5.633e-15 ***
+inc86       -0.00122484  0.00011395 -10.7487 < 2.2e-16 ***
+black        0.16171828  0.02548569   6.3455 2.590e-10 ***
+hispan       0.08925863  0.02103411   4.2435 2.274e-05 ***
+born60       0.00286982  0.01713126   0.1675    0.8670    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> 
+> 0.5*reg1$coefficients[2]
+      pcnv 
+-0.0771901 
+> 
+> #b)
+> #for homoscedastic SE:
+> library(car)
+> linearHypothesis(reg1, c("avgsen = tottime", "tottime=0"))
+Linear hypothesis test
+
+Hypothesis:
+avgsen - tottime = 0
+tottime = 0
+
+Model 1: restricted model
+Model 2: arr86 ~ pcnv + avgsen + tottime + ptime86 + inc86 + black + hispan + 
+    born60
+
+  Res.Df    RSS Df Sum of Sq      F Pr(>F)
+1   2718 500.91                           
+2   2716 500.84  2   0.06606 0.1791  0.836
+> 
+> #for heteroscedasticity robust SE
+> linearHypothesis(reg1, c("avgsen = tottime", "tottime=0"), vcov. = hccm(reg1))
+Linear hypothesis test
+
+Hypothesis:
+avgsen - tottime = 0
+tottime = 0
+
+Model 1: restricted model
+Model 2: arr86 ~ pcnv + avgsen + tottime + ptime86 + inc86 + black + hispan + 
+    born60
+
+Note: Coefficient covariance matrix supplied.
+
+  Res.Df Df      F Pr(>F)
+1   2718                 
+2   2716  2 0.1687 0.8448
+> 
+> #c) 
+> probit<-glm(arr86 ~ pcnv + avgsen + tottime + ptime86 + inc86 + black + hispan + born60, family = binomial(link=probit), data=Data)
+> summary(probit)
+
+Call:
+glm(formula = arr86 ~ pcnv + avgsen + tottime + ptime86 + inc86 + 
+    black + hispan + born60, family = binomial(link = probit), 
+    data = Data)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.3926  -0.8569  -0.6192   1.1672   2.9527  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -0.3138333  0.0513646  -6.110 9.97e-10 ***
+pcnv        -0.5529251  0.0715055  -7.733 1.05e-14 ***
+avgsen       0.0127395  0.0209105   0.609    0.542    
+tottime     -0.0076485  0.0165677  -0.462    0.644    
+ptime86     -0.0811996  0.0171629  -4.731 2.23e-06 ***
+inc86       -0.0046346  0.0004853  -9.551  < 2e-16 ***
+black        0.4666077  0.0718600   6.493 8.40e-11 ***
+hispan       0.2911005  0.0653907   4.452 8.52e-06 ***
+born60       0.0112067  0.0556932   0.201    0.841    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 3216.4  on 2724  degrees of freedom
+Residual deviance: 2967.3  on 2716  degrees of freedom
+AIC: 2985.3
+
+Number of Fisher Scoring iterations: 5
+
+> 
+> logLik(probit) # Log Likelihood value
+'log Lik.' -1483.641 (df=9)
+> pseudoR2_probit<-1-probit$deviance/probit$null.deviance
+> pseudoR2_probit  # McFadden (1974) Pseudo R-squared
+[1] 0.07744332
+> lrtest(probit) # LR test for overall significance
+Likelihood ratio test
+
+Model 1: arr86 ~ pcnv + avgsen + tottime + ptime86 + inc86 + black + hispan + 
+    born60
+Model 2: arr86 ~ 1
+  #Df  LogLik Df  Chisq Pr(>Chisq)    
+1   9 -1483.6                         
+2   1 -1608.2 -8 249.09  < 2.2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> library(margins)
+Warning message:
+pakke ‘margins’ blev bygget under R version 3.6.3 
+> lev0<-data.frame(0.25,mean(Data$avgsen),mean(Data$tottime),mean(Data$ptime86),mean(Data$inc86),1,0,1)
+> names(lev0)<-c("pcnv","avgsen","tottime","ptime86","inc86","black","hispan","born60")
+> margins(probit, at=lev0)
+Average marginal effects at specified values
+glm(formula = arr86 ~ pcnv + avgsen + tottime + ptime86 + inc86 +     black + hispan + born60, family = binomial(link = probit),     data = Data)
+
+ at(pcnv) at(avgsen) at(tottime) at(ptime86) at(inc86) at(black) at(hispan) at(born60)    pcnv
+     0.25     0.6323      0.8388      0.3872     54.97         1          0          1 -0.2133
+   avgsen   tottime  ptime86     inc86 black hispan   born60
+ 0.004915 -0.002951 -0.03133 -0.001788  0.18 0.1123 0.004324
+> p0<-predict(probit,lev0,type = "response")
+> 
+> lev1<-data.frame(0.75,mean(Data$avgsen),mean(Data$tottime),mean(Data$ptime86),mean(Data$inc86),1,0,1)
+> names(lev1)<-c("pcnv","avgsen","tottime","ptime86","inc86","black","hispan","born60")
+> margins(probit, at=lev1)
+Average marginal effects at specified values
+glm(formula = arr86 ~ pcnv + avgsen + tottime + ptime86 + inc86 +     black + hispan + born60, family = binomial(link = probit),     data = Data)
+
+ at(pcnv) at(avgsen) at(tottime) at(ptime86) at(inc86) at(black) at(hispan) at(born60)    pcnv
+     0.75     0.6323      0.8388      0.3872     54.97         1          0          1 -0.1911
+   avgsen   tottime  ptime86     inc86  black hispan   born60
+ 0.004404 -0.002644 -0.02807 -0.001602 0.1613 0.1006 0.003874
+> p1<-predict(probit,lev1,type = "response")
+> 
+> p1-p0 #effect on probability of arrest for pcnv that goes from 0.25 to 0.75
+         1 
+-0.1016607 
+> 
+> 
+> #d)
+> #compute fitted values
+> Data$fit<-probit$fitted.values
+> summary(Data$fit)
+     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+0.0006766 0.1761459 0.2774962 0.2769152 0.3750552 0.6207837 
+> 
+> Data$tarr86<-as.numeric(Data$fit>=0.5)
+> as.data.frame(table(Data$arr86,Data$tarr86,dnn = list("arr86","tarr86")))
+  arr86 tarr86 Freq
+1     0      0 1903
+2     1      0  677
+3     0      1   67
+4     1      1   78
+> 
+> #compute percent correctly predicted
+> (1903+78)/2725
+[1] 0.7269725
+> 
+> #pcp for arr86=0
+> 1903/(1903+67)
+[1] 0.9659898
+> 
+> #pcp for arr86=1
+> 78/(677+78)
+[1] 0.1033113
+> 
+> 
+> #e)
+> probit2<-glm(arr86 ~ pcnv + avgsen + tottime + ptime86 + inc86 + black + hispan + born60 + pcnvsq + pt86sq + inc86sq, family = binomial(link=probit), data=Data)
+> summary(probit2)
+
+Call:
+glm(formula = arr86 ~ pcnv + avgsen + tottime + ptime86 + inc86 + 
+    black + hispan + born60 + pcnvsq + pt86sq + inc86sq, family = binomial(link = probit), 
+    data = Data)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.1555  -0.8597  -0.5907   1.1204   2.7080  
+
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -3.374e-01  5.600e-02  -6.024 1.70e-09 ***
+pcnv         2.168e-01  2.592e-01   0.836   0.4030    
+avgsen       1.400e-02  2.567e-02   0.545   0.5856    
+tottime     -1.782e-02  2.066e-02  -0.863   0.3884    
+ptime86      7.450e-01  1.435e-01   5.190 2.11e-07 ***
+inc86       -5.879e-03  9.636e-04  -6.100 1.06e-09 ***
+black        4.368e-01  7.333e-02   5.957 2.57e-09 ***
+hispan       2.664e-01  6.694e-02   3.979 6.91e-05 ***
+born60      -1.452e-02  5.671e-02  -0.256   0.7979    
+pcnvsq      -8.571e-01  2.700e-01  -3.175   0.0015 ** 
+pt86sq      -1.035e-01  2.230e-02  -4.641 3.46e-06 ***
+inc86sq      8.747e-06  4.148e-06   2.109   0.0350 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 3216.4  on 2724  degrees of freedom
+Residual deviance: 2879.6  on 2713  degrees of freedom
+AIC: 2903.6
+
+Number of Fisher Scoring iterations: 8
+
+> 
+> logLik(probit2) # Log Likelihood value
+'log Lik.' -1439.8 (df=12)
+> pseudoR2_probit2<-1-probit2$deviance/probit2$null.deviance
+> pseudoR2_probit2  # McFadden (1974) Pseudo R-squared
+[1] 0.104704
+> lrtest(probit2)
+Likelihood ratio test
+
+Model 1: arr86 ~ pcnv + avgsen + tottime + ptime86 + inc86 + black + hispan + 
+    born60 + pcnvsq + pt86sq + inc86sq
+Model 2: arr86 ~ 1
+  #Df  LogLik  Df  Chisq Pr(>Chisq)    
+1  12 -1439.8                          
+2   1 -1608.2 -11 336.77  < 2.2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> #Use in build Wald test
+> linearHypothesis(probit2, c("pcnvsq = pt86sq","pt86sq=inc86sq","inc86sq=0"))
+Linear hypothesis test
+
+Hypothesis:
+pcnvsq - pt86sq = 0
+pt86sq - inc86sq = 0
+inc86sq = 0
+
+Model 1: restricted model
+Model 2: arr86 ~ pcnv + avgsen + tottime + ptime86 + inc86 + black + hispan + 
+    born60 + pcnvsq + pt86sq + inc86sq
+
+  Res.Df Df  Chisq Pr(>Chisq)    
+1   2716                         
+2   2713  3 38.956  1.774e-08 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> #Alternatively perform LR test 
+> l_ur<-logLik(probit2) 
+> l_r <-logLik(probit)
+> 
+> #Value of the test statistic is
+> lr=2*(l_ur-l_r)
+> lr
+'log Lik.' 87.68032 (df=12)
+> 
+> #The P value is
+> 1-pchisq(lr, 3)
+'log Lik.' 0 (df=12)
+> #or
+> pchisq(lr, 3, lower.tail=FALSE)
+'log Lik.' 6.897992e-19 (df=12)
+> 
+> #alternatively you can use a build in command for the LR test:
+> lrtest(probit,probit2)
+Likelihood ratio test
+
+Model 1: arr86 ~ pcnv + avgsen + tottime + ptime86 + inc86 + black + hispan + 
+    born60
+Model 2: arr86 ~ pcnv + avgsen + tottime + ptime86 + inc86 + black + hispan + 
+    born60 + pcnvsq + pt86sq + inc86sq
+  #Df  LogLik Df Chisq Pr(>Chisq)    
+1   9 -1483.6                        
+2  12 -1439.8  3 87.68  < 2.2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+>                                    
+> rm(list=ls())
+> 
+> 
+> 
+
+> rm(list=ls(all=TRUE))

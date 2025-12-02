@@ -1,0 +1,785 @@
+> # Solutions to Problem Set 4
+> 
+> rm(list=ls())
+> 
+> 
+> ###Solution to Problem 1
+> 
+> # load data
+> library(haven)
+> wage2 <- read_dta("H:/Teaching/CBS/BA-BMECV1031U/2020/Problem Sets/PS4/WAGE2.DTA")
+> 
+> 
+> #a)
+> #lecture's model (2)
+> reg1<-lm(lwage ~ educ + exper + tenure + married + south + urban + black + IQ, data=wage2)
+> summary(reg1)
+
+Call:
+lm(formula = lwage ~ educ + exper + tenure + married + south + 
+    urban + black + IQ, data = wage2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.01203 -0.22244  0.01017  0.22951  1.27478 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  5.1764392  0.1280006  40.441  < 2e-16 ***
+educ         0.0544106  0.0069285   7.853 1.12e-14 ***
+exper        0.0141458  0.0031651   4.469 8.82e-06 ***
+tenure       0.0113951  0.0024394   4.671 3.44e-06 ***
+married      0.1997644  0.0388025   5.148 3.21e-07 ***
+south       -0.0801695  0.0262529  -3.054 0.002325 ** 
+urban        0.1819463  0.0267929   6.791 1.99e-11 ***
+black       -0.1431253  0.0394925  -3.624 0.000306 ***
+IQ           0.0035591  0.0009918   3.589 0.000350 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3632 on 926 degrees of freedom
+Multiple R-squared:  0.2628,	Adjusted R-squared:  0.2564 
+F-statistic: 41.27 on 8 and 926 DF,  p-value: < 2.2e-16
+
+> 
+> # use KWW
+> reg2<-lm(lwage ~ educ + exper + tenure + married + south + urban + black + KWW, data=wage2)
+> summary(reg2)
+
+Call:
+lm(formula = lwage ~ educ + exper + tenure + married + south + 
+    urban + black + KWW, data = wage2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.04494 -0.21931 -0.00048  0.24163  1.26464 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  5.358797   0.113600  47.172  < 2e-16 ***
+educ         0.057628   0.006838   8.428  < 2e-16 ***
+exper        0.012228   0.003241   3.773 0.000172 ***
+tenure       0.011072   0.002456   4.507 7.40e-06 ***
+married      0.189461   0.039077   4.848 1.46e-06 ***
+south       -0.091601   0.026156  -3.502 0.000484 ***
+urban        0.175545   0.027032   6.494 1.36e-10 ***
+black       -0.164267   0.038530  -4.263 2.22e-05 ***
+KWW          0.005028   0.001819   2.764 0.005820 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3642 on 926 degrees of freedom
+Multiple R-squared:  0.2587,	Adjusted R-squared:  0.2523 
+F-statistic: 40.39 on 8 and 926 DF,  p-value: < 2.2e-16
+
+> 
+> 
+> #b)
+> reg3<-lm(lwage ~ educ + exper + tenure + married + south + urban + black + IQ + KWW, data=wage2)
+> summary(reg3)
+
+Call:
+lm(formula = lwage ~ educ + exper + tenure + married + south + 
+    urban + black + IQ + KWW, data = wage2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.05704 -0.21621  0.00824  0.23725  1.24895 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  5.175644   0.127776  40.506  < 2e-16 ***
+educ         0.049837   0.007262   6.863 1.24e-11 ***
+exper        0.012752   0.003231   3.947 8.51e-05 ***
+tenure       0.010925   0.002446   4.467 8.92e-06 ***
+married      0.192145   0.038909   4.938 9.35e-07 ***
+south       -0.082029   0.026222  -3.128  0.00181 ** 
+urban        0.175823   0.026910   6.534 1.06e-10 ***
+black       -0.130399   0.039901  -3.268  0.00112 ** 
+IQ           0.003118   0.001013   3.079  0.00214 ** 
+KWW          0.003826   0.001852   2.066  0.03913 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3625 on 925 degrees of freedom
+Multiple R-squared:  0.2662,	Adjusted R-squared:  0.2591 
+F-statistic: 37.28 on 9 and 925 DF,  p-value: < 2.2e-16
+
+> 
+> 
+> #c)
+> library(car)
+Indlæser krævet pakke: carData
+> linearHypothesis(reg3, c("IQ=KWW","KWW=0"))
+Linear hypothesis test
+
+Hypothesis:
+IQ - KWW = 0
+KWW = 0
+
+Model 1: restricted model
+Model 2: lwage ~ educ + exper + tenure + married + south + urban + black + 
+    IQ + KWW
+
+  Res.Df    RSS Df Sum of Sq     F    Pr(>F)    
+1    927 123.82                                 
+2    925 121.56  2     2.259 8.595 0.0002002 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> 
+> 
+> rm(list=ls())
+> 
+> 
+> 
+> ###Solution to Problem 2
+> 
+> wage2 <- read_dta("H:/Teaching/CBS/BA-BMECV1031U/2020/Problem Sets/PS4/WAGE2.DTA")
+> 
+> 
+> #a)
+> library(AER)
+Indlæser krævet pakke: lmtest
+Indlæser krævet pakke: zoo
+
+Vedhæfter pakke: ‘zoo’
+
+De følgende objekter er maskerede fra ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+Indlæser krævet pakke: sandwich
+Indlæser krævet pakke: survival
+Advarselsbesked:
+pakke ‘AER’ blev bygget under R version 3.6.3 
+> 
+> reg_IV<-ivreg(lwage~educ|sibs ,data=wage2)
+> summary(reg_IV)
+
+Call:
+ivreg(formula = lwage ~ educ | sibs, data = wage2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.85429 -0.26950  0.04223  0.29276  1.31038 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  5.13003    0.35517  14.444  < 2e-16 ***
+educ         0.12243    0.02635   4.646 3.86e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.4233 on 933 degrees of freedom
+Multiple R-Squared: -0.009174,	Adjusted R-squared: -0.01026 
+Wald test: 21.59 on 1 and 933 DF,  p-value: 3.865e-06 
+
+> 
+> reg1<-lm(lwage ~ sibs, data=wage2)
+> summary(reg1)
+
+Call:
+lm(formula = lwage ~ sibs, data = wage2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.97662 -0.25857  0.02503  0.28572  1.22677 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  6.861076   0.022078 310.771  < 2e-16 ***
+sibs        -0.027904   0.005908  -4.723 2.68e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.4164 on 933 degrees of freedom
+Multiple R-squared:  0.02335,	Adjusted R-squared:  0.0223 
+F-statistic: 22.31 on 1 and 933 DF,  p-value: 2.68e-06
+
+> 
+> 
+> #b)
+> reg2<-lm(educ ~ brthord, data=wage2)
+> summary(reg2)
+
+Call:
+lm(formula = educ ~ brthord, data = wage2)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.8668 -1.5842 -0.7362  2.1332  6.1117 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 14.14945    0.12868 109.962  < 2e-16 ***
+brthord     -0.28264    0.04629  -6.106 1.55e-09 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 2.155 on 850 degrees of freedom
+  (83 observations deleted due to missingness)
+Multiple R-squared:  0.04202,	Adjusted R-squared:  0.04089 
+F-statistic: 37.29 on 1 and 850 DF,  p-value: 1.551e-09
+
+> 
+> 
+> #c)
+> reg_IV.2<-ivreg(lwage~educ|brthord ,data=wage2)
+> summary(reg_IV.2)
+
+Call:
+ivreg(formula = lwage ~ educ | brthord, data = wage2)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-1.8532 -0.2557  0.0435  0.2970  1.3033 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  5.03040    0.43295  11.619  < 2e-16 ***
+educ         0.13064    0.03204   4.078 4.97e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.4215 on 850 degrees of freedom
+Multiple R-Squared: -0.02862,	Adjusted R-squared: -0.02983 
+Wald test: 16.63 on 1 and 850 DF,  p-value: 4.975e-05 
+
+> 
+> 
+> #d)
+> reg3<-lm(educ ~ sibs + brthord, data=wage2)
+> summary(reg3)
+
+Call:
+lm(formula = educ ~ sibs + brthord, data = wage2)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-5.1438 -1.6854 -0.6852  2.0090  5.9950 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 14.29650    0.13329 107.260  < 2e-16 ***
+sibs        -0.15287    0.03987  -3.834 0.000135 ***
+brthord     -0.15267    0.05708  -2.675 0.007619 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 2.137 on 849 degrees of freedom
+  (83 observations deleted due to missingness)
+Multiple R-squared:  0.05833,	Adjusted R-squared:  0.05611 
+F-statistic: 26.29 on 2 and 849 DF,  p-value: 8.33e-12
+
+> 
+> 
+> #e)
+> reg_IV.3<-ivreg(lwage~educ + sibs|brthord +sibs,data=wage2)
+> summary(reg_IV.3)
+
+Call:
+ivreg(formula = lwage ~ educ + sibs | brthord + sibs, data = wage2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.84808 -0.26227  0.03841  0.29901  1.30836 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 4.938527   1.055690   4.678 3.37e-06 ***
+educ        0.136994   0.074681   1.834   0.0669 .  
+sibs        0.002111   0.017372   0.122   0.9033    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.427 on 849 degrees of freedom
+Multiple R-Squared: -0.05428,	Adjusted R-squared: -0.05676 
+Wald test:  10.9 on 2 and 849 DF,  p-value: 2.124e-05 
+
+> 
+> 
+> #f)
+> educhat<-reg3$fitted.values
+> sibs.naomit<-subset(wage2$sibs, !is.na(wage2$brthord)) #remove obs in sibs for which there are not fitted values (to compute correlation the two vectors need to have the same dimension)
+> 
+> cor(educhat, sibs.naomit)
+[1] -0.9294818
+> 
+> 
+> rm(list=ls())
+> 
+> 
+> 
+> 
+> ###Solution to Problem 3
+> 
+> Data <- read_dta("H:/Teaching/CBS/BA-BMECV1031U/2020/Problem Sets/PS4/401KSUBS.DTA")
+> 
+> #a)
+> reg1<-lm(pira ~ p401k + inc + incsq + age + agesq, data=Data)
+> summary(reg1)
+
+Call:
+lm(formula = pira ~ p401k + inc + incsq + age + agesq, data = Data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.8855 -0.2629 -0.1198  0.1987  1.0625 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -1.977e-01  6.864e-02  -2.880  0.00398 ** 
+p401k        5.366e-02  9.571e-03   5.606 2.13e-08 ***
+inc          8.679e-03  5.110e-04  16.983  < 2e-16 ***
+incsq       -2.280e-05  4.033e-06  -5.653 1.62e-08 ***
+age         -1.594e-03  3.330e-03  -0.479  0.63228    
+agesq        1.173e-04  3.823e-05   3.068  0.00216 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3945 on 9269 degrees of freedom
+Multiple R-squared:   0.18,	Adjusted R-squared:  0.1795 
+F-statistic: 406.9 on 5 and 9269 DF,  p-value: < 2.2e-16
+
+> coeftest(reg1, vcov=hccm(reg1, type="hc1"))
+
+t test of coefficients:
+
+               Estimate  Std. Error t value  Pr(>|t|)    
+(Intercept) -1.9772e-01  6.5172e-02 -3.0339  0.002421 ** 
+p401k        5.3660e-02  1.0276e-02  5.2217 1.811e-07 ***
+inc          8.6788e-03  4.8401e-04 17.9312 < 2.2e-16 ***
+incsq       -2.2796e-05  3.8567e-06 -5.9108 3.524e-09 ***
+age         -1.5936e-03  3.2391e-03 -0.4920  0.622741    
+agesq        1.1729e-04  3.8221e-05  3.0687  0.002156 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> 
+> #d)
+> reg2<-lm(p401k ~ e401k + inc + incsq + age + agesq, data=Data)
+> summary(reg2)
+
+Call:
+lm(formula = p401k ~ e401k + inc + incsq + age + agesq, data = Data)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.89568 -0.01371  0.01310  0.24283  0.34692 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  5.915e-02  4.951e-02   1.195  0.23228    
+e401k        6.888e-01  6.351e-03 108.469  < 2e-16 ***
+inc          1.112e-03  3.706e-04   3.000  0.00271 ** 
+incsq        1.841e-06  2.918e-06   0.631  0.52810    
+age         -4.721e-03  2.403e-03  -1.964  0.04952 *  
+agesq        5.204e-05  2.759e-05   1.886  0.05927 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.2842 on 9269 degrees of freedom
+Multiple R-squared:  0.5963,	Adjusted R-squared:  0.5961 
+F-statistic:  2738 on 5 and 9269 DF,  p-value: < 2.2e-16
+
+> coeftest(reg2, vcov=hccm(reg2, type="hc1"))
+
+t test of coefficients:
+
+               Estimate  Std. Error t value  Pr(>|t|)    
+(Intercept)  5.9149e-02  4.6175e-02  1.2810  0.200231    
+e401k        6.8885e-01  7.9903e-03 86.2104 < 2.2e-16 ***
+inc          1.1117e-03  3.4344e-04  3.2369  0.001213 ** 
+incsq        1.8410e-06  2.6745e-06  0.6884  0.491246    
+age         -4.7205e-03  2.2433e-03 -2.1043  0.035382 *  
+agesq        5.2037e-05  2.5711e-05  2.0239  0.043006 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> 
+> #e)
+> reg_IV<-ivreg(pira~p401k + inc + incsq + age + agesq|e401k + inc + incsq + age + agesq, data=Data)
+> summary(reg_IV)
+
+Call:
+ivreg(formula = pira ~ p401k + inc + incsq + age + agesq | e401k + 
+    inc + incsq + age + agesq, data = Data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.8774 -0.2628 -0.1200  0.2051  1.0605 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -2.073e-01  6.873e-02  -3.016  0.00257 ** 
+p401k        2.070e-02  1.281e-02   1.617  0.10601    
+inc          8.998e-03  5.180e-04  17.372  < 2e-16 ***
+incsq       -2.414e-05  4.050e-06  -5.960 2.62e-09 ***
+age         -1.147e-03  3.334e-03  -0.344  0.73094    
+agesq        1.121e-04  3.828e-05   2.928  0.00342 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3947 on 9269 degrees of freedom
+Multiple R-Squared: 0.1789,	Adjusted R-squared: 0.1785 
+Wald test: 400.6 on 5 and 9269 DF,  p-value: < 2.2e-16 
+
+> 
+> library(ivpack)
+Advarselsbesked:
+pakke ‘ivpack’ blev bygget under R version 3.6.3 
+> robust.se(reg_IV) #to obtain robust standard errors
+[1] "Robust Standard Errors"
+
+t test of coefficients:
+
+               Estimate  Std. Error t value  Pr(>|t|)    
+(Intercept) -2.0731e-01  6.5359e-02 -3.1719  0.001519 ** 
+p401k        2.0701e-02  1.3228e-02  1.5650  0.117624    
+inc          8.9982e-03  4.9113e-04 18.3215 < 2.2e-16 ***
+incsq       -2.4136e-05  3.8809e-06 -6.2192 5.212e-10 ***
+age         -1.1466e-03  3.2480e-03 -0.3530  0.724071    
+agesq        1.1207e-04  3.8324e-05  2.9243  0.003461 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> 
+> #f)
+> Data$nuhat<-reg2$residuals
+> 
+> reg3<-lm(pira ~ p401k + inc + incsq + age + agesq + nuhat, data=Data)
+> summary(reg3)
+
+Call:
+lm(formula = pira ~ p401k + inc + incsq + age + agesq + nuhat, 
+    data = Data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.8833 -0.2635 -0.1179  0.1971  1.0669 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -2.073e-01  6.864e-02  -3.020 0.002531 ** 
+p401k        2.070e-02  1.279e-02   1.619 0.105527    
+inc          8.998e-03  5.172e-04  17.397  < 2e-16 ***
+incsq       -2.414e-05  4.044e-06  -5.968 2.49e-09 ***
+age         -1.147e-03  3.330e-03  -0.344 0.730574    
+agesq        1.121e-04  3.822e-05   2.932 0.003376 ** 
+nuhat        7.479e-02  1.926e-02   3.883 0.000104 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3942 on 9268 degrees of freedom
+Multiple R-squared:  0.1813,	Adjusted R-squared:  0.1808 
+F-statistic: 342.1 on 6 and 9268 DF,  p-value: < 2.2e-16
+
+> coeftest(reg3, vcov=hccm(reg3, type="hc1"))
+
+t test of coefficients:
+
+               Estimate  Std. Error t value  Pr(>|t|)    
+(Intercept) -2.0731e-01  6.5247e-02 -3.1773  0.001491 ** 
+p401k        2.0701e-02  1.3221e-02  1.5658  0.117422    
+inc          8.9982e-03  4.9090e-04 18.3302 < 2.2e-16 ***
+incsq       -2.4136e-05  3.8748e-06 -6.2290 4.897e-10 ***
+age         -1.1466e-03  3.2413e-03 -0.3538  0.723528    
+agesq        1.1207e-04  3.8239e-05  2.9308  0.003389 ** 
+nuhat        7.4794e-02  1.9093e-02  3.9174 9.015e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> 
+> 
+> 
+> ###Solution to Problem 6
+> 
+> rm(list=ls())
+> card <- read_dta("H:/Teaching/CBS/BA-BMECV1031U/2020/Problem Sets/PS4/CARD.DTA")
+> attach(card)
+> 
+> # (a)
+> # OLS
+> summary(lm(lwage~educ+exper+expersq+black+smsa+south+smsa66+reg662+reg663+reg664+reg665+reg666+reg667+reg668+reg669))
+
+Call:
+lm(formula = lwage ~ educ + exper + expersq + black + smsa + 
+    south + smsa66 + reg662 + reg663 + reg664 + reg665 + reg666 + 
+    reg667 + reg668 + reg669)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.62326 -0.22141  0.02001  0.23932  1.33340 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  4.6208068  0.0742327  62.248  < 2e-16 ***
+educ         0.0746933  0.0034983  21.351  < 2e-16 ***
+exper        0.0848320  0.0066242  12.806  < 2e-16 ***
+expersq     -0.0022870  0.0003166  -7.223 6.41e-13 ***
+black       -0.1990123  0.0182483 -10.906  < 2e-16 ***
+smsa         0.1363845  0.0201005   6.785 1.39e-11 ***
+south       -0.1479550  0.0259799  -5.695 1.35e-08 ***
+smsa66       0.0262417  0.0194477   1.349  0.17733    
+reg662       0.0963672  0.0358979   2.684  0.00730 ** 
+reg663       0.1445400  0.0351244   4.115 3.97e-05 ***
+reg664       0.0550756  0.0416573   1.322  0.18623    
+reg665       0.1280248  0.0418395   3.060  0.00223 ** 
+reg666       0.1405174  0.0452469   3.106  0.00192 ** 
+reg667       0.1179810  0.0448025   2.633  0.00850 ** 
+reg668      -0.0564361  0.0512579  -1.101  0.27098    
+reg669       0.1185698  0.0388301   3.054  0.00228 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3723 on 2994 degrees of freedom
+Multiple R-squared:  0.2998,	Adjusted R-squared:  0.2963 
+F-statistic: 85.48 on 15 and 2994 DF,  p-value: < 2.2e-16
+
+> #IV
+> summary(ivreg(lwage~educ+exper+expersq+black+smsa+south+smsa66+reg662+reg663+reg664+reg665+reg666+reg667+reg668+reg669
++               |nearc4+exper+expersq+black+smsa+south+smsa66+reg662+reg663+reg664+reg665+reg666+reg667+reg668+reg669))
+
+Call:
+ivreg(formula = lwage ~ educ + exper + expersq + black + smsa + 
+    south + smsa66 + reg662 + reg663 + reg664 + reg665 + reg666 + 
+    reg667 + reg668 + reg669 | nearc4 + exper + expersq + black + 
+    smsa + south + smsa66 + reg662 + reg663 + reg664 + reg665 + 
+    reg666 + reg667 + reg668 + reg669)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.83164 -0.24075  0.02428  0.25208  1.42760 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  3.6661509  0.9248295   3.964 7.54e-05 ***
+educ         0.1315038  0.0549637   2.393  0.01679 *  
+exper        0.1082711  0.0236586   4.576 4.92e-06 ***
+expersq     -0.0023349  0.0003335  -7.001 3.12e-12 ***
+black       -0.1467757  0.0538999  -2.723  0.00650 ** 
+smsa         0.1118083  0.0316620   3.531  0.00042 ***
+south       -0.1446715  0.0272846  -5.302 1.23e-07 ***
+smsa66       0.0185311  0.0216086   0.858  0.39119    
+reg662       0.1007678  0.0376857   2.674  0.00754 ** 
+reg663       0.1482588  0.0368141   4.027 5.78e-05 ***
+reg664       0.0498971  0.0437398   1.141  0.25406    
+reg665       0.1462719  0.0470639   3.108  0.00190 ** 
+reg666       0.1629029  0.0519096   3.138  0.00172 ** 
+reg667       0.1345722  0.0494023   2.724  0.00649 ** 
+reg668      -0.0830770  0.0593314  -1.400  0.16155    
+reg669       0.1078142  0.0418137   2.578  0.00997 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3883 on 2994 degrees of freedom
+Multiple R-Squared: 0.2382,	Adjusted R-squared: 0.2343 
+Wald test: 51.01 on 15 and 2994 DF,  p-value: < 2.2e-16 
+
+> # reduced form regresion
+> educ.m<-lm(educ~nearc4+exper+expersq+black+smsa+south+smsa66+reg662+reg663+reg664+reg665+reg666+reg667+reg668+reg669)
+> summary(educ.m)
+
+Call:
+lm(formula = educ ~ nearc4 + exper + expersq + black + smsa + 
+    south + smsa66 + reg662 + reg663 + reg664 + reg665 + reg666 + 
+    reg667 + reg668 + reg669)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-7.545 -1.370 -0.091  1.278  6.239 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 16.6382529  0.2406297  69.145  < 2e-16 ***
+nearc4       0.3198989  0.0878638   3.641 0.000276 ***
+exper       -0.4125334  0.0336996 -12.241  < 2e-16 ***
+expersq      0.0008686  0.0016504   0.526 0.598728    
+black       -0.9355287  0.0937348  -9.981  < 2e-16 ***
+smsa         0.4021825  0.1048112   3.837 0.000127 ***
+south       -0.0516126  0.1354284  -0.381 0.703152    
+smsa66       0.0254805  0.1057692   0.241 0.809644    
+reg662      -0.0786363  0.1871154  -0.420 0.674329    
+reg663      -0.0279390  0.1833745  -0.152 0.878913    
+reg664       0.1171820  0.2172531   0.539 0.589665    
+reg665      -0.2726165  0.2184204  -1.248 0.212082    
+reg666      -0.3028147  0.2370712  -1.277 0.201590    
+reg667      -0.2168177  0.2343879  -0.925 0.355021    
+reg668       0.5238914  0.2674749   1.959 0.050246 .  
+reg669       0.2102710  0.2024568   1.039 0.299076    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 1.941 on 2994 degrees of freedom
+Multiple R-squared:  0.4771,	Adjusted R-squared:  0.4745 
+F-statistic: 182.1 on 15 and 2994 DF,  p-value: < 2.2e-16
+
+> summary(lm(lwage~educ+exper+expersq+black+smsa+south+smsa66+reg662+reg663+reg664+reg665+reg666+reg667+reg668+reg669+fitted.values(educ.m)))
+
+Call:
+lm(formula = lwage ~ educ + exper + expersq + black + smsa + 
+    south + smsa66 + reg662 + reg663 + reg664 + reg665 + reg666 + 
+    reg667 + reg668 + reg669 + fitted.values(educ.m))
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.62661 -0.22235  0.01862  0.23944  1.33226 
+
+Coefficients:
+                        Estimate Std. Error t value Pr(>|t|)    
+(Intercept)            3.6661509  0.8865821   4.135 3.64e-05 ***
+educ                   0.0744417  0.0035060  21.233  < 2e-16 ***
+exper                  0.1082711  0.0226801   4.774 1.89e-06 ***
+expersq               -0.0023349  0.0003197  -7.303 3.58e-13 ***
+black                 -0.1467757  0.0516708  -2.841 0.004533 ** 
+smsa                   0.1118083  0.0303526   3.684 0.000234 ***
+south                 -0.1446715  0.0261562  -5.531 3.46e-08 ***
+smsa66                 0.0185311  0.0207149   0.895 0.371085    
+reg662                 0.1007678  0.0361272   2.789 0.005316 ** 
+reg663                 0.1482588  0.0352916   4.201 2.74e-05 ***
+reg664                 0.0498971  0.0419309   1.190 0.234147    
+reg665                 0.1462719  0.0451176   3.242 0.001200 ** 
+reg666                 0.1629029  0.0497628   3.274 0.001074 ** 
+reg667                 0.1345722  0.0473592   2.842 0.004520 ** 
+reg668                -0.0830770  0.0568776  -1.461 0.144223    
+reg669                 0.1078142  0.0400844   2.690 0.007192 ** 
+fitted.values(educ.m)  0.0570621  0.0528071   1.081 0.279973    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3723 on 2993 degrees of freedom
+Multiple R-squared:  0.3001,	Adjusted R-squared:  0.2964 
+F-statistic: 80.21 on 16 and 2993 DF,  p-value: < 2.2e-16
+
+> 
+> # (b)
+> summary(ivreg(lwage~educ+exper+expersq+black+smsa+south+smsa66+reg662+reg663+reg664+reg665+reg666+reg667+reg668+reg669|
++                 nearc4+nearc2+exper+expersq+black+smsa+south+smsa66+reg662+reg663+reg664+reg665+reg666+reg667+reg668+reg669))
+
+Call:
+ivreg(formula = lwage ~ educ + exper + expersq + black + smsa + 
+    south + smsa66 + reg662 + reg663 + reg664 + reg665 + reg666 + 
+    reg667 + reg668 + reg669 | nearc4 + nearc2 + exper + expersq + 
+    black + smsa + south + smsa66 + reg662 + reg663 + reg664 + 
+    reg665 + reg666 + reg667 + reg668 + reg669)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.93841 -0.25068  0.01932  0.26519  1.46998 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  3.2367108  0.8849118   3.658 0.000259 ***
+educ         0.1570594  0.0525782   2.987 0.002839 ** 
+exper        0.1188149  0.0228061   5.210 2.02e-07 ***
+expersq     -0.0023565  0.0003475  -6.781 1.43e-11 ***
+black       -0.1232778  0.0521500  -2.364 0.018147 *  
+smsa         0.1007530  0.0315193   3.197 0.001405 ** 
+south       -0.1431945  0.0284448  -5.034 5.08e-07 ***
+smsa66       0.0150626  0.0223360   0.674 0.500132    
+reg662       0.1027473  0.0392906   2.615 0.008966 ** 
+reg663       0.1499316  0.0383918   3.905 9.62e-05 ***
+reg664       0.0475676  0.0456013   1.043 0.296977    
+reg665       0.1544801  0.0485628   3.181 0.001482 ** 
+reg666       0.1729728  0.0534164   3.238 0.001216 ** 
+reg667       0.1420356  0.0511219   2.778 0.005497 ** 
+reg668      -0.0950611  0.0609801  -1.559 0.119129    
+reg669       0.1029760  0.0434224   2.371 0.017779 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.4053 on 2994 degrees of freedom
+Multiple R-Squared: 0.1702,	Adjusted R-squared: 0.166 
+Wald test: 47.07 on 15 and 2994 DF,  p-value: < 2.2e-16 
+
+> 
+> # (c)
+> wage.m<-ivreg(lwage~educ+exper+expersq+black+smsa+south+smsa66+reg662+reg663+reg664+reg665+reg666+reg667+reg668+reg669|
++                 nearc4+nearc2+exper+expersq+black+smsa+south+smsa66+reg662+reg663+reg664+reg665+reg666+reg667+reg668+reg669)
+> summary(wage.m)
+
+Call:
+ivreg(formula = lwage ~ educ + exper + expersq + black + smsa + 
+    south + smsa66 + reg662 + reg663 + reg664 + reg665 + reg666 + 
+    reg667 + reg668 + reg669 | nearc4 + nearc2 + exper + expersq + 
+    black + smsa + south + smsa66 + reg662 + reg663 + reg664 + 
+    reg665 + reg666 + reg667 + reg668 + reg669)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.93841 -0.25068  0.01932  0.26519  1.46998 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  3.2367108  0.8849118   3.658 0.000259 ***
+educ         0.1570594  0.0525782   2.987 0.002839 ** 
+exper        0.1188149  0.0228061   5.210 2.02e-07 ***
+expersq     -0.0023565  0.0003475  -6.781 1.43e-11 ***
+black       -0.1232778  0.0521500  -2.364 0.018147 *  
+smsa         0.1007530  0.0315193   3.197 0.001405 ** 
+south       -0.1431945  0.0284448  -5.034 5.08e-07 ***
+smsa66       0.0150626  0.0223360   0.674 0.500132    
+reg662       0.1027473  0.0392906   2.615 0.008966 ** 
+reg663       0.1499316  0.0383918   3.905 9.62e-05 ***
+reg664       0.0475676  0.0456013   1.043 0.296977    
+reg665       0.1544801  0.0485628   3.181 0.001482 ** 
+reg666       0.1729728  0.0534164   3.238 0.001216 ** 
+reg667       0.1420356  0.0511219   2.778 0.005497 ** 
+reg668      -0.0950611  0.0609801  -1.559 0.119129    
+reg669       0.1029760  0.0434224   2.371 0.017779 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.4053 on 2994 degrees of freedom
+Multiple R-Squared: 0.1702,	Adjusted R-squared: 0.166 
+Wald test: 47.07 on 15 and 2994 DF,  p-value: < 2.2e-16 
+
+> resid.m<-lm(residuals(wage.m)~exper+expersq+black+smsa+south+smsa66+reg662+reg663+reg664+reg665+reg666+reg667+reg668+reg669+nearc4+nearc2)
+> summary(resid.m)
+
+Call:
+lm(formula = residuals(wage.m) ~ exper + expersq + black + smsa + 
+    south + smsa66 + reg662 + reg663 + reg664 + reg665 + reg666 + 
+    reg667 + reg668 + reg669 + nearc4 + nearc2)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-1.9482 -0.2514  0.0206  0.2640  1.4646 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)
+(Intercept) -3.224e-04  5.045e-02  -0.006    0.995
+exper        3.122e-05  7.038e-03   0.004    0.996
+expersq     -3.428e-06  3.447e-04  -0.010    0.992
+black       -8.852e-04  1.962e-02  -0.045    0.964
+smsa         6.683e-04  2.189e-02   0.031    0.976
+south        1.145e-03  2.831e-02   0.040    0.968
+smsa66      -5.942e-04  2.234e-02  -0.027    0.979
+reg662      -2.872e-03  3.918e-02  -0.073    0.942
+reg663      -8.449e-05  3.831e-02  -0.002    0.998
+reg664       1.200e-03  4.541e-02   0.026    0.979
+reg665      -6.692e-04  4.562e-02  -0.015    0.988
+reg666      -6.445e-03  4.967e-02  -0.130    0.897
+reg667      -8.388e-04  4.896e-02  -0.017    0.986
+reg668       2.208e-03  5.597e-02   0.039    0.969
+reg669      -6.107e-03  4.263e-02  -0.143    0.886
+nearc4      -8.083e-03  1.835e-02  -0.441    0.660
+nearc2       1.652e-02  1.617e-02   1.021    0.307
+
+Residual standard error: 0.4053 on 2993 degrees of freedom
+Multiple R-squared:  0.0004147,	Adjusted R-squared:  -0.004929 
+F-statistic: 0.0776 on 16 and 2993 DF,  p-value: 1
+
+> (LM<-summary(resid.m)$r.squared*nobs(resid.m))
+[1] 1.248153
+> qchisq(0.95,1)
+[1] 3.841459
+> qchisq(0.9,1)
+[1] 2.705543
+> 
+> detach(card)
+> 

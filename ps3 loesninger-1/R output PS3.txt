@@ -1,0 +1,448 @@
+> # Solutions to Problem Set 3
+> 
+> 
+> ###############################################
+> # Exercise 1
+> rm(list=ls())
+> library(haven)
+> okun <- read_dta("H:/Teaching/CBS/BA-BMECV1031U/2021/Problem Sets/PS3/okun.dta")
+> 
+> # (a)
+> tsdata <- ts(okun)
+> library(dynlm)
+Indlæser krævet pakke: zoo
+
+Vedhæfter pakke: ‘zoo’
+
+De følgende objekter er maskerede fra ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+Warning message:
+pakke ‘dynlm’ blev bygget under R version 3.6.3 
+> library(car)
+Indlæser krævet pakke: carData
+> library(lmtest)
+> reg4 <- dynlm(pcrgdp~ d(u), data=tsdata)
+> summary(reg4)
+
+Time series regression with "ts" data:
+Start = 2, End = 98
+
+Call:
+dynlm(formula = pcrgdp ~ d(u), data = tsdata)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.43747 -0.35087 -0.03197  0.30583  1.02748 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  1.31307    0.04722  27.808  < 2e-16 ***
+d(u)        -1.59450    0.16452  -9.692 7.53e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.4635 on 95 degrees of freedom
+Multiple R-squared:  0.4972,	Adjusted R-squared:  0.4919 
+F-statistic: 93.93 on 1 and 95 DF,  p-value: 7.532e-16
+
+> 
+> linearHypothesis(reg4, "d(u) = -2")
+Linear hypothesis test
+
+Hypothesis:
+d(u) = - 2
+
+Model 1: restricted model
+Model 2: pcrgdp ~ d(u)
+
+  Res.Df    RSS Df Sum of Sq      F  Pr(>F)  
+1     96 21.710                              
+2     95 20.405  1    1.3048 6.0749 0.01551 *
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+> bgtest(reg4, order=1, type="Chisq")
+
+	Breusch-Godfrey test for serial correlation of order up to 1
+
+data:  reg4
+LM test = 0.080603, df = 1, p-value = 0.7765
+
+> 
+> # (b)
+> usq <- residuals(reg4)^2
+> summary(dynlm(usq~ d(u), data=tsdata))
+
+Time series regression with "ts" data:
+Start = 2, End = 98
+
+Call:
+dynlm(formula = usq ~ d(u), data = tsdata)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.31341 -0.17143 -0.11531  0.07535  1.72546 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  0.20638    0.03036   6.798 9.28e-10 ***
+d(u)         0.16808    0.10577   1.589    0.115    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.298 on 95 degrees of freedom
+Multiple R-squared:  0.02589,	Adjusted R-squared:  0.01564 
+F-statistic: 2.525 on 1 and 95 DF,  p-value: 0.1154
+
+> 
+> # (c)
+> library(sandwich)
+> reg6 <- dynlm(pcrgdp~ d(u), data=tsdata)
+> #heteroskedasticity robust SE
+> coeftest(reg6, vcov=hccm(reg6, type="hc0"))
+
+t test of coefficients:
+
+             Estimate Std. Error t value  Pr(>|t|)    
+(Intercept)  1.313065   0.045956 28.5722 < 2.2e-16 ***
+d(u)        -1.594499   0.212673 -7.4974 3.398e-11 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> # OLS with robust SE (Newey-West correction):
+> #one needs to specify maximum order of autocorrelation 
+> #resulting SE are robust up to the chosen order
+> #They are also robust with respect to heteroskedasticity
+> reg7<-coeftest(reg6, vcov=NeweyWest(reg6, lag=1))
+> reg7
+
+t test of coefficients:
+
+             Estimate Std. Error t value  Pr(>|t|)    
+(Intercept)  1.313065   0.046883 28.0070 < 2.2e-16 ***
+d(u)        -1.594499   0.236916 -6.7302 1.276e-09 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+> 
+> #95% asymptotic confidence interval
+> l_CI <- reg7[2,1]-1.96*reg7[2,2]
+> l_CI
+[1] -2.058855
+> u_CI <- reg7[2,1]+1.96*reg7[2,2]
+> u_CI
+[1] -1.130144
+> 
+> ###############################################
+> # Exercise 4
+> rm(list=ls())
+> intdef <- read_dta("H:/Teaching/CBS/BA-BMECV1031U/2021/Problem Sets/PS3/INTDEF.DTA")
+> attach(intdef)
+> library(AER)
+Indlæser krævet pakke: survival
+Warning message:
+pakke ‘AER’ blev bygget under R version 3.6.3 
+> 
+> # (a)
+> summary(lm(i3[-1]~inf[-1]))
+
+Call:
+lm(formula = i3[-1] ~ inf[-1])
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-6.2837 -1.0109 -0.1694  0.5621  4.5360 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  2.36838    0.46604   5.082 6.67e-06 ***
+inf[-1]      0.69181    0.09141   7.568 1.29e-09 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 1.982 on 46 degrees of freedom
+Multiple R-squared:  0.5546,	Adjusted R-squared:  0.5449 
+F-statistic: 57.27 on 1 and 46 DF,  p-value: 1.291e-09
+
+> 
+> # (c)
+> summary(lm(ci3~cinf))
+
+Call:
+lm(formula = ci3 ~ cinf)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.58046 -0.80768  0.07599  0.90712  3.08969 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)   
+(Intercept)  0.10533    0.18556   0.568  0.57304   
+cinf         0.21094    0.07299   2.890  0.00586 **
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 1.284 on 46 degrees of freedom
+  (1 observation deleted due to missingness)
+Multiple R-squared:  0.1537,	Adjusted R-squared:  0.1353 
+F-statistic: 8.352 on 1 and 46 DF,  p-value: 0.005859
+
+> 
+> detach(intdef)
+> 
+> 
+> ###############################################
+> # Exercise 5
+> 
+> rm(list=ls(all=TRUE))
+> 
+> # for read_dta
+> library(haven)
+> 
+> # for mutate 
+> library(dplyr)
+
+Vedhæfter pakke: ‘dplyr’
+
+Det følgende objekt er maskeret fra ‘package:car’:
+
+    recode
+
+De følgende objekter er maskerede fra ‘package:stats’:
+
+    filter, lag
+
+De følgende objekter er maskerede fra ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Warning message:
+pakke ‘dplyr’ blev bygget under R version 3.6.3 
+> 
+> # setwd(".")
+> setwd("H:/Teaching/CBS/BA-BMECV1031U/2021/Problem Sets/PS3")
+> 
+> jtrain <- read_dta("jtrain98.dta")
+> 
+> # (a)
+> mean(jtrain$unem98)
+[1] 0.1716814
+> mean(jtrain$unem96)
+[1] 0.3123894
+> 
+> # (b)
+> summary(lm(unem98 ~ train, data=jtrain))
+
+Call:
+lm(formula = unem98 ~ train, data = jtrain)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.1888 -0.1888 -0.1631 -0.1631  0.8369 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  0.16313    0.01374  11.874   <2e-16 ***
+train        0.02570    0.02382   1.079    0.281    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3772 on 1128 degrees of freedom
+Multiple R-squared:  0.001031,	Adjusted R-squared:  0.0001456 
+F-statistic: 1.164 on 1 and 1128 DF,  p-value: 0.2808
+
+> 
+> # (c)
+> summary(lm(unem98 ~ train+earn96+educ+age+married, data=jtrain))
+
+Call:
+lm(formula = unem98 ~ train + earn96 + educ + age + married, 
+    data = jtrain)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.62984 -0.20763 -0.07852  0.08609  1.08337 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  0.289581   0.063494   4.561 5.66e-06 ***
+train       -0.120767   0.024131  -5.005 6.49e-07 ***
+earn96      -0.013270   0.001033 -12.851  < 2e-16 ***
+educ        -0.013049   0.003551  -3.675 0.000249 ***
+age          0.008162   0.001046   7.800 1.41e-14 ***
+married     -0.048288   0.023632  -2.043 0.041249 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3313 on 1124 degrees of freedom
+Multiple R-squared:  0.2322,	Adjusted R-squared:  0.2288 
+F-statistic: 67.99 on 5 and 1124 DF,  p-value: < 2.2e-16
+
+> 
+> # (d)
+> # generate interaction terms 
+> jtrain <- jtrain %>%
++   mutate(train.demeaned_earn96 = train*(earn96-mean(earn96))) %>%
++   mutate(train.demeaned_educ = train*(educ-mean(educ))) %>%
++   mutate(train.demeaned_age = train*(age-mean(age))) %>%
++   mutate(train.demeaned_married = train*(married-mean(married))) 
+> 
+> model <- lm(unem98 ~ train+earn96+educ+age+married
++           +train.demeaned_earn96+train.demeaned_educ
++           +train.demeaned_age+train.demeaned_married, data=jtrain)
+> summary(model)
+
+Call:
+lm(formula = unem98 ~ train + earn96 + educ + age + married + 
+    train.demeaned_earn96 + train.demeaned_educ + train.demeaned_age + 
+    train.demeaned_married, data = jtrain)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.61259 -0.20188 -0.07470  0.08318  1.08208 
+
+Coefficients:
+                         Estimate Std. Error t value Pr(>|t|)    
+(Intercept)             0.2614036  0.0772305   3.385 0.000737 ***
+train                  -0.1225648  0.0295758  -4.144 3.67e-05 ***
+earn96                 -0.0133338  0.0011141 -11.968  < 2e-16 ***
+educ                   -0.0106719  0.0043317  -2.464 0.013902 *  
+age                     0.0079725  0.0012667   6.294 4.43e-10 ***
+married                -0.0366406  0.0302970  -1.209 0.226772    
+train.demeaned_earn96   0.0002050  0.0030099   0.068 0.945713    
+train.demeaned_educ    -0.0073046  0.0075912  -0.962 0.336133    
+train.demeaned_age      0.0007743  0.0022675   0.342 0.732787    
+train.demeaned_married -0.0314146  0.0490643  -0.640 0.522124    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3317 on 1120 degrees of freedom
+Multiple R-squared:  0.2334,	Adjusted R-squared:  0.2272 
+F-statistic: 37.88 on 9 and 1120 DF,  p-value: < 2.2e-16
+
+> 
+> # (e)
+> # Specify restricted model 
+> model_restricted <- lm(unem98 ~ train+earn96+educ+age+married, data=jtrain)
+> 
+> # Use built in test
+> anova(model_restricted, model)
+Analysis of Variance Table
+
+Model 1: unem98 ~ train + earn96 + educ + age + married
+Model 2: unem98 ~ train + earn96 + educ + age + married + train.demeaned_earn96 + 
+    train.demeaned_educ + train.demeaned_age + train.demeaned_married
+  Res.Df    RSS Df Sum of Sq      F Pr(>F)
+1   1124 123.38                           
+2   1120 123.19  4   0.18762 0.4264 0.7896
+> 
+> # Construct test by "hand" 
+> numerator <- ((summary(model)$r.squared-summary(model_restricted)$r.squared))/4
+> denominator <- (1-summary(model)$r.squared)/(model$df.residual)
+> (F <- numerator/denominator) 
+[1] 0.4264285
+> (pf(F, 4, model$df.residual, lower.tail = FALSE))
+[1] 0.7896388
+> 
+> # (f)
+> # Run model for treated and control separately  
+> jtrain_treated <- subset(jtrain, train==1)
+> jtrain_control <- subset(jtrain, train==0)
+> treated <- lm(unem98~earn96+educ+age+married, data=jtrain_treated)
+> control <- lm(unem98~earn96+educ+age+married, data=jtrain_control)
+> 
+> # Get predicted values for entire sample in each case 
+> fitted_treated <- jtrain %>%
++   mutate(intercept=treated$coefficients[1]) %>%
++   mutate(earn96=earn96*treated$coefficients[2]) %>%
++   mutate(educ=educ*treated$coefficients[3]) %>%
++   mutate(age=age*treated$coefficients[4]) %>%
++   mutate(married=married*treated$coefficients[5])
+> 
+> fitted_control <- jtrain %>%
++   mutate(intercept=control$coefficients[1]) %>%
++   mutate(earn96=earn96*control$coefficients[2]) %>%
++   mutate(educ=educ*control$coefficients[3]) %>%
++   mutate(age=age*control$coefficients[4]) %>%
++   mutate(married=married*control$coefficients[5]) 
+> 
+> 
+> # Get tau 
+> (tau_ura <- sum(fitted_treated-fitted_control)/nrow(jtrain))
+[1] -0.1225648
+> 
+> 
+> 
+> ###############################################
+> # Exercise 6
+> 
+> #for read.dta
+> library(foreign)
+> 
+> kielmc<-read.dta("H:/Teaching/CBS/BA-BMECV1031U/2021/Problem Sets/PS3/KIELMC.DTA")
+Warning message:
+In read.dta("H:/Teaching/CBS/BA-BMECV1031U/2021/Problem Sets/PS3/KIELMC.DTA") :
+  cannot read factor labels from Stata 5 files
+> attach(kielmc)
+> 
+> # (b)
+> summary(lm(lprice~y81+ldist+y81*ldist))
+
+Call:
+lm(formula = lprice ~ y81 + ldist + y81 * ldist)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.01930 -0.20807  0.00539  0.21128  1.49747 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  8.05847    0.50844  15.850  < 2e-16 ***
+y81         -0.01131    0.80506  -0.014    0.989    
+ldist        0.31669    0.05153   6.145 2.39e-09 ***
+y81:ldist    0.04819    0.08179   0.589    0.556    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3422 on 317 degrees of freedom
+Multiple R-squared:  0.3958,	Adjusted R-squared:  0.3901 
+F-statistic: 69.22 on 3 and 317 DF,  p-value: < 2.2e-16
+
+> 
+> # (c)
+> summary(lm(lprice~y81+ldist+y81*ldist+age+agesq+rooms+baths+lintst+lland+larea))
+
+Call:
+lm(formula = lprice ~ y81 + ldist + y81 * ldist + age + agesq + 
+    rooms + baths + lintst + lland + larea)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.19636 -0.09957  0.01064  0.11414  0.78094 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  7.674e+00  5.016e-01  15.300  < 2e-16 ***
+y81         -2.254e-01  4.947e-01  -0.456 0.648902    
+ldist        9.226e-04  4.462e-02   0.021 0.983516    
+age         -8.007e-03  1.417e-03  -5.650 3.64e-08 ***
+agesq        3.570e-05  8.708e-06   4.099 5.29e-05 ***
+rooms        4.614e-02  1.734e-02   2.660 0.008216 ** 
+baths        1.010e-01  2.782e-02   3.632 0.000329 ***
+lintst      -5.998e-02  3.172e-02  -1.891 0.059599 .  
+lland        9.534e-02  2.473e-02   3.856 0.000140 ***
+larea        3.507e-01  5.195e-02   6.752 7.20e-11 ***
+y81:ldist    6.247e-02  5.028e-02   1.242 0.215025    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.2055 on 310 degrees of freedom
+Multiple R-squared:  0.787,	Adjusted R-squared:  0.7802 
+F-statistic: 114.6 on 10 and 310 DF,  p-value: < 2.2e-16
+
+> pt(1.24,df=310,lower.tail=FALSE)
+[1] 0.1079566
+> 
+> detach(kielmc)

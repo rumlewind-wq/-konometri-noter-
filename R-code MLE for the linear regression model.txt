@@ -1,0 +1,2 @@
+Sample R-code for estimation of the multiple linear regression model with normal errros can be found here:
+https://www.mayin.org/ajayshah/KB/R/documents/mle/mle.html
